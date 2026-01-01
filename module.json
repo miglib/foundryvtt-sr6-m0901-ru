@@ -1,0 +1,40 @@
+{
+  "id": "sr6-m0901-ru",
+  "title": "Shadowrun missions",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "flags": {
+    "canUpload": true
+  },
+  "packs": [
+    {
+      "name": "sr6-m0901",
+      "label": "sr6-m0901",
+      "path": "packs/sr6-m0901",
+      "type": "Adventure",
+      "system": "shadowrun6-eden",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "shadowrun6-eden",
+        "type": "system",
+        "compatibility": {}
+      }
+    ]
+  },
+  "description": "<p>Модуль содержащий официальную миссию 09.01. Основой являются официальные переводы миссий на русский язык, с корректировками из оригинальных миссии на английском.</p><p>Характеристики персонажей в модуле могут отличаться от характеристик описанных в миссии.</p>",
+  "url": "https://github.com/miglib/foundryvtt-sr6-m0901-ru",
+  "manifest": "https://github.com/miglib/foundryvtt-sr6-m0901-ru/releases/latest/download/module.json",
+  "download": "https://github.com/miglib/foundryvtt-sr6-m0901-ru/releases/latest/download/module.zip",
+  "readme": "https://github.com/miglib/foundryvtt-sr6-m0901-ru/blob/master/README.md",
+  "bugs": "https://github.com/miglib/foundryvtt-sr6-m0901-ru/issues"
+}

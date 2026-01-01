@@ -1,0 +1,71 @@
+name: Release Creation
+
+on:
+  push:
+    tags:
+      - '\d+.\d+.\d+'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      # Set up our some variables for future use
+      # Adapted from https://github.community/t/how-to-get-just-the-tag-name/16241/7
+      # Tag name: ${{ steps.get_vars.outputs.TAG_NAME }}
+      # Repo path: ${{ steps.get_vars.outputs.URL_REPO }}
+      # Manifest path: ${{ steps.get_vars.outputs.URL_MANIFEST }}
+      # Module path: ${{ steps.get_vars.outputs.URL_MODULE }}
+      # Stringified module.json contents: ${{ steps.get_vars.outputs.MODULE_JSON }}
+      - name: Set up variables
+        id: get_vars
+        run: |
+          TAG=${GITHUB_REF/refs\/tags\//}
+          REPO="https://github.com/${{github.repository}}"
+          MANIFEST="$REPO/releases/latest/download/module.json"
+          MODULE="$REPO/releases/download/$TAG/module.zip"
+          echo "TAG_NAME=$TAG" >> $GITHUB_OUTPUT
+          echo "URL_REPO=$REPO" >> $GITHUB_OUTPUT
+          echo "URL_MANIFEST=$MANIFEST" >> $GITHUB_OUTPUT
+          echo "URL_MODULE=$MODULE" >> $GITHUB_OUTPUT
+
+      # Substitute the Manifest and Download URLs in the module.json
+      # for a FULL RELEASE
+      - name: Substitute Manifest and Download Links For Versioned Ones
+        if: "!github.event.release.prerelease"
+        id: sub_release_manifest_version
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: 'module.json'
+        env:
+          version: ${{ steps.get_vars.outputs.TAG_NAME }}
+          url: ${{ steps.get_vars.outputs.URL_REPO }}
+          manifest: ${{ steps.get_vars.outputs.URL_MANIFEST }}
+          download: ${{ steps.get_vars.outputs.URL_MODULE }}
+
+      # Create a zip file with all files required by the module to add to the release
+      - run: zip -r ./module.zip packs/ bronze silver gold platinum back.webp module.json
+      
+      # Create a release for this specific version
+      - name: Update Release with Files
+        if: "!github.event.release.prerelease"
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true # Set this to false if you want to prevent updating existing releases
+          name: ${{ github.event.release.name }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: './module.json, ./module.zip'
+          tag: ${{ github.event.release.tag_name }}
+          body: ${{ github.event.release.body }}
